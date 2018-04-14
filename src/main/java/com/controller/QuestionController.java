@@ -1,7 +1,7 @@
 package com.controller;
 
-import com.model.HostHolder;
-import com.model.Question;
+import com.model.*;
+import com.service.CommentService;
 import com.service.QuestionService;
 import com.service.UserService;
 import com.util.WendaUtil;
@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Administrator on 2017/6/29.
@@ -30,6 +32,8 @@ public class QuestionController {
     HostHolder hostHolder;
     @Autowired
     UserService userService;
+    @Autowired
+    CommentService commentService;
 
     @RequestMapping(value = "/question/add",method = RequestMethod.POST)
     //@ResponseBody
@@ -66,6 +70,21 @@ public class QuestionController {
         model.addAttribute("question",question);
         model.addAttribute("owner",userService.getUser(question.getUserId()));
 
+        //
+        List<Comment> commentList=commentService.getCommentsByEntity(qid, EntityType.ENTITY_QUESTION);
+        List<ViewObject> comments=new ArrayList<>();
+        for(Comment comment:commentList){
+            ViewObject vo=new ViewObject();
+            vo.set("comment",comment);
+            vo.set("user",userService.getUser(comment.getUserId()));
+            comments.add(vo);
+        }
+        model.addAttribute("comments",comments);
+
+        if (hostHolder.getUser() == null) {
+            return "redirect:loginpage";
+        }
+
         return "detail";
     }
 
@@ -74,3 +93,4 @@ public class QuestionController {
         return "addquestionpage";
     }
 }
+
