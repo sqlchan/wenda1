@@ -1,0 +1,8 @@
+<toolbox>
+    <tool>
+        <key>date</key>
+        <scope>application</scope>
+        <class>org.apache.velocity.tools.generic.DateTool</class>
+    </tool>
+</toolbox>
+<!--引入velocity的工具类，定义了一date对象，引用下面的datetool类-->
