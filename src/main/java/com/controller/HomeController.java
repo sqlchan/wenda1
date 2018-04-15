@@ -1,7 +1,10 @@
 package com.controller;
 
+import com.model.EntityType;
+import com.model.HostHolder;
 import com.model.Question;
 import com.model.ViewObject;
+import com.service.LikeService;
 import com.service.QuestionService;
 import com.service.UserService;
 import org.slf4j.Logger;
@@ -26,6 +29,10 @@ public class HomeController {
     UserService userService;
     @Autowired
     QuestionService questionService;
+    @Autowired
+    LikeService likeService;
+    @Autowired
+    HostHolder hostHolder;
 
     @RequestMapping("/")
     public String index(Model model){
@@ -39,16 +46,23 @@ public class HomeController {
         return "home";
     }
 
-    private List<ViewObject> getQuestion(int userid, int offset, int limit){
+    private List<ViewObject> getQuestion(int userid,int offset,int limit){
         List<Question> questionList=questionService.getLatestQuestions(userid,0,10);
         List<ViewObject> vos=new ArrayList<>();
         for(Question question:questionList){
             ViewObject vo=new ViewObject();
             vo.set("question",question);
             vo.set("user",userService.getUser(question.getUserId()));
+            long likeCount=0;
+            likeCount=likeService.getLikeCount(EntityType.ENTITY_QUESTION,question.getId());
+            vo.set("likeCount",likeCount);
+            int liked=0;
+            if (hostHolder.getUser() != null) {
+                liked=likeService.getLikeStatus(hostHolder.getUser().getId(), EntityType.ENTITY_QUESTION, question.getId());
+            }
+            vo.set("liked",liked);
             vos.add(vo);
         }
         return vos;
     }
 }
-
